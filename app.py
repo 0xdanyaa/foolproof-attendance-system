@@ -742,3 +742,9 @@ if __name__ == '__main__':
     # debug=True → auto-restarts server on code change + shows detailed error pages
     # NEVER use debug=True in a live production server
     app.run(debug=True, host='0.0.0.0', port=5000)
+#=======================================================================
+#FOR DEPLOYMENT
+#=======================================================================
+import os
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
