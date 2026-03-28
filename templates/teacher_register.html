@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Teacher Registration{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card fade-in" style="max-width:460px;">
+
+        <div class="login-logo">✏️</div>
+        <h1 class="login-title">Create Teacher Account</h1>
+        <p class="login-subtitle">Register to start managing attendance</p>
+
+        <form method="POST" action="{{ url_for('teacher_register') }}" id="teacher-register-form">
+
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Dr. Jane Smith"
+                    required />
+            </div>
+
+            <!-- Subject -->
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject" placeholder="e.g. Mathematics" />
+            </div>
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username"
+                    placeholder="Choose a unique username" required autocomplete="username" />
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password"
+                    placeholder="Choose a strong password" required autocomplete="new-password" />
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-4">
+                <label for="confirm" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm" name="confirm"
+                    placeholder="Repeat your password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-lg" id="teacher-register-submit">
+                <i class="bi bi-person-plus me-2"></i>Create Account
+            </button>
+        </form>
+
+        <hr class="section-divider" />
+        <p class="text-center text-muted mb-0" style="font-size:0.88rem;">
+            Already have an account? <a href="{{ url_for('teacher_login') }}" class="text-primary">Login here</a>
+        </p>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Client-side password match validation — catches mismatches before form submits
+    document.getElementById('teacher-register-form').addEventListener('submit', function (e) {
+        const pw = document.getElementById('password').value;
+        const cfm = document.getElementById('confirm').value;
+        if (pw !== cfm) {
+            e.preventDefault();
+            alert('Passwords do not match. Please try again.');
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

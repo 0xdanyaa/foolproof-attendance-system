@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="container py-4 z-1" style="position:relative;">
+
+    <div class="page-header fade-in">
+        <h1><i class="bi bi-people me-2 text-primary"></i>Manage Students</h1>
+        <p class="lead">Add, view, or remove students from the system.</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ===== ADD STUDENT FORM ===== -->
+        <div class="col-lg-4 fade-in fade-in-1">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-person-plus me-2 text-success"></i>Add New Student
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('manage_students') }}" id="add-student-form">
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe"
+                                required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="roll_no" class="form-label">Roll Number</label>
+                            <input type="text" class="form-control" id="roll_no" name="roll_no"
+                                placeholder="e.g. CSE-001" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="class_name" class="form-label">Class / Batch</label>
+                            <input type="text" class="form-control" id="class_name" name="class_name"
+                                placeholder="e.g. CS Year 2" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email (optional)</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                placeholder="student@example.com" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100" id="add-student-submit">
+                            <i class="bi bi-plus-lg me-2"></i>Add Student
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STUDENT LIST TABLE ===== -->
+        <div class="col-lg-8 fade-in fade-in-2">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span>
+                        <i class="bi bi-list-ul me-2 text-primary"></i>Registered Students
+                    </span>
+                    <span class="badge bg-primary" style="font-size:0.85rem;">{{ students|length }}</span>
+                </div>
+
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Roll No.</th>
+                                <th>Class</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td class="text-muted">{{ loop.index }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div
+                                            style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:#fff;flex-shrink:0;">
+                                            {{ s['name'][0] | upper }}
+                                        </div>
+                                        <span class="fw-500">{{ s['name'] }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">{{ s['roll_no'] }}</td>
+                                <td class="text-muted">
+                                    {% if s['class_name'] %}{{ s['class_name'] }}{% else %}&mdash;{% endif %}
+                                </td>
+                                <td class="text-muted" style="font-size:0.85rem;">
+                                    {% if s['email'] %}{{ s['email'] }}{% else %}&mdash;{% endif %}
+                                </td>
+                                <td>
+                                    <!-- Delete button — sends POST to delete this student -->
+                                    <form method="POST" action="{{ url_for('delete_student', student_id=s.id) }}"
+                                        style="display:inline;"
+                                        onsubmit="return confirm('Delete {{ s.name }}? This also removes their attendance records.');">
+                                        <button type="submit" class="btn btn-danger btn-sm" id="del-student-{{ s.id }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-person-x" style="font-size:2.5rem;opacity:0.3;"></i>
+                    <p class="text-muted mt-2 mb-0">No students yet. Add one using the form on the left.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

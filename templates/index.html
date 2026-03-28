@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container py-5 z-1" style="position:relative;">
+
+  <!-- ===== HERO SECTION ===== -->
+  <div class="text-center mb-5 fade-in">
+    <div style="width:88px;height:88px;background:linear-gradient(135deg,#4f46e5,#818cf8);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:2.75rem;margin:0 auto 1.5rem;box-shadow:0 12px 32px rgba(79,70,229,0.45);">
+      📋
+    </div>
+    <h1 class="fw-800" style="font-size:2.6rem;color:#fff;">
+      Foolproof Automated
+      <span style="background:linear-gradient(90deg,#818cf8,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+        Attendance System
+      </span>
+    </h1>
+    <p class="lead text-muted mt-2 mb-4" style="max-width:540px;margin:0 auto;">
+      A simple, clean, and efficient way to track student attendance —
+      built for teachers and students alike.
+    </p>
+  </div>
+
+  <!-- ===== PORTAL CARDS ===== -->
+  <div class="row g-4 justify-content-center mb-5">
+
+    <!-- Teacher Portal -->
+    <div class="col-md-5 fade-in fade-in-1">
+      <div class="card h-100 text-center p-4">
+        <div style="width:72px;height:72px;background:rgba(79,70,229,0.15);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.25rem;border:1px solid rgba(79,70,229,0.3);">
+          👨‍🏫
+        </div>
+        <h4 class="fw-700 text-white mb-2">Teacher Portal</h4>
+        <p class="text-muted mb-4" style="font-size:0.9rem;">
+          Log in to mark attendance, manage students, and view detailed reports.
+        </p>
+        <a href="{{ url_for('teacher_login') }}" class="btn btn-primary btn-lg w-100" id="teacher-login-btn">
+          <i class="bi bi-person-badge me-2"></i>Teacher Login
+        </a>
+        <p class="text-muted mt-3 mb-0" style="font-size:0.82rem;">
+          Don't have an account?
+          <a href="{{ url_for('teacher_register') }}" class="text-primary">Register here</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Student Portal -->
+    <div class="col-md-5 fade-in fade-in-2">
+      <div class="card h-100 text-center p-4">
+        <div style="width:72px;height:72px;background:rgba(16,185,129,0.12);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.25rem;border:1px solid rgba(16,185,129,0.25);">
+          🎓
+        </div>
+        <h4 class="fw-700 text-white mb-2">Student Portal</h4>
+        <p class="text-muted mb-4" style="font-size:0.9rem;">
+          View your attendance records, check your percentage, and track your progress.
+        </p>
+        <a href="{{ url_for('student_login') }}" class="btn btn-success btn-lg w-100" id="student-login-btn">
+          <i class="bi bi-mortarboard me-2"></i>Student Login
+        </a>
+        <p class="text-muted mt-3 mb-0" style="font-size:0.82rem;">
+          New student?
+          <a href="{{ url_for('student_register') }}" class="text-primary">Register here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FEATURES ROW ===== -->
+  <div class="row g-3 justify-content-center fade-in fade-in-3">
+    {% set features = [
+      ('📊', 'Auto Percentage', 'Attendance percentage is calculated automatically in real time.'),
+      ('🔐', 'Secure Login',    'Separate, password-protected portals for teachers and students.'),
+      ('📅', 'Daily Tracking',  'Mark present or absent for any date with a single click.'),
+      ('📈', 'Visual Reports',  'Colour-coded progress bars make reports easy to read at a glance.'),
+    ] %}
+    {% for icon, title, desc in features %}
+    <div class="col-6 col-md-3">
+      <div class="text-center p-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+        <div style="font-size:1.75rem;margin-bottom:0.5rem;">{{ icon }}</div>
+        <div class="fw-600 text-white" style="font-size:0.9rem;">{{ title }}</div>
+        <div class="text-muted" style="font-size:0.78rem;margin-top:0.25rem;">{{ desc }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

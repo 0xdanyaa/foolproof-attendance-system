@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}Attendance Reports{% endblock %}
+
+{% block content %}
+<div class="container py-4 z-1" style="position:relative;">
+
+    <div class="page-header fade-in">
+        <h1><i class="bi bi-bar-chart-line me-2 text-primary"></i>Attendance Reports</h1>
+        <p class="lead">View auto-calculated attendance percentages for every student.</p>
+    </div>
+
+    <!-- ===== FILTERS ===== -->
+    <div class="card mb-4 fade-in fade-in-1">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('view_reports') }}" class="row g-3 align-items-end"
+                id="report-filter-form">
+
+                <div class="col-md-3">
+                    <label for="from_date" class="form-label">From Date</label>
+                    <input type="date" class="form-control" id="from_date" name="from_date" value="{{ from_date }}" />
+                </div>
+
+                <div class="col-md-3">
+                    <label for="to_date" class="form-label">To Date</label>
+                    <input type="date" class="form-control" id="to_date" name="to_date" value="{{ to_date }}" />
+                </div>
+
+                <div class="col-md-3">
+                    <label for="class_filter" class="form-label">Class / Batch</label>
+                    <select class="form-select" id="class_filter" name="class_filter">
+                        <option value="">All Classes</option>
+                        {% for cls in classes %}
+                        <option value="{{ cls }}" {% if class_filter==cls %}selected{% endif %}>
+                            {{ cls }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill" id="apply-filter-btn">
+                        <i class="bi bi-funnel me-1"></i>Apply
+                    </button>
+                    <a href="{{ url_for('view_reports') }}" class="btn btn-outline-light" id="clear-filter-btn">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== SUMMARY STAT CARDS ===== -->
+    <div class="row g-3 mb-4 fade-in fade-in-2">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value">{{ report_data | length }}</div>
+                <div class="stat-label">Students</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-calendar3"></i></div>
+                <div class="stat-value">{{ total_days }}</div>
+                <div class="stat-label">Days in Period</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="bi bi-graph-up"></i></div>
+                <div class="stat-value">{{ avg_pct }}%</div>
+                <div class="stat-label">Average Attendance</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="stat-value">{{ below_75 }}</div>
+                <div class="stat-label">Below 75%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN REPORT TABLE ===== -->
+    <div class="card fade-in fade-in-2">
+        <div class="card-header">
+            <i class="bi bi-table me-2 text-primary"></i>Student-wise Attendance Report
+        </div>
+
+        {% if report_data %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Class</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Total</th>
+                        <th>Percentage</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in report_data %}
+                    {# r is a plain Python dict — access with r['key'] or r.key (Jinja2 supports both) #}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+
+                        <!-- Student name with avatar initial -->
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width:34px;height:34px;border-radius:50%;
+                                            background:linear-gradient(135deg,#4f46e5,#818cf8);
+                                            display:flex;align-items:center;justify-content:center;
+                                            font-size:0.8rem;font-weight:700;color:#fff;flex-shrink:0;">
+                                    {{ r['student_name'][0] | upper }}
+                                </div>
+                                <span class="fw-500">{{ r['student_name'] }}</span>
+                            </div>
+                        </td>
+
+                        <td class="text-muted">{{ r['roll_no'] }}</td>
+
+                        <!-- Show class name or a dash -->
+                        <td class="text-muted">
+                            {% if r['class_name'] %}
+                            {{ r['class_name'] }}
+                            {% else %}
+                            &mdash;
+                            {% endif %}
+                        </td>
+
+                        <!-- Present count badge -->
+                        <td><span class="badge bg-success">{{ r['present'] }}</span></td>
+
+                        <!-- Absent count badge -->
+                        <td><span class="badge bg-danger">{{ r['absent'] }}</span></td>
+
+                        <!-- Total classes -->
+                        <td class="text-muted">{{ r['total'] }}</td>
+
+                        <!-- Percentage ring — colour-coded -->
+                        <td>
+                            {% if r['percentage'] >= 75 %}
+                            <span class="pct-ring high">{{ r['percentage'] }}%</span>
+                            {% elif r['percentage'] >= 60 %}
+                            <span class="pct-ring medium">{{ r['percentage'] }}%</span>
+                            {% else %}
+                            <span class="pct-ring low">{{ r['percentage'] }}%</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Progress bar — separate divs per branch to avoid Jinja2-in-class linter issues -->
+                        <td style="min-width:120px;">
+                            <div class="progress">
+                                {% if r['percentage'] >= 75 %}
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    style="width:{{ r['percentage'] }}%" aria-valuenow="{{ r['percentage'] }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                {% elif r['percentage'] >= 60 %}
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                    style="width:{{ r['percentage'] }}%" aria-valuenow="{{ r['percentage'] }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                {% else %}
+                                <div class="progress-bar bg-danger" role="progressbar"
+                                    style="width:{{ r['percentage'] }}%" aria-valuenow="{{ r['percentage'] }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="card-body text-center py-5">
+            <i class="bi bi-bar-chart" style="font-size:2.5rem;opacity:0.3;"></i>
+            <p class="text-muted mt-2 mb-0">No data available for the selected filters.</p>
+        </div>
+        {% endif %}
+
+    </div><!-- end main report card -->
+
+    <!-- ===== DETAILED DAY-BY-DAY RECORDS ===== -->
+    {% if detail_records %}
+    <div class="card mt-4 fade-in fade-in-3">
+        <div class="card-header">
+            <i class="bi bi-list-check me-2 text-primary"></i>Day-by-Day Records
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in detail_records %}
+                    {# rec is a sqlite3.Row — access with rec['col'] #}
+                    <tr>
+                        <td class="text-muted">{{ rec['date'] }}</td>
+                        <td>{{ rec['student_name'] }}</td>
+                        <td class="text-muted">{{ rec['roll_no'] }}</td>
+                        <td>
+                            {% if rec['status'] == 'Present' %}
+                            <span class="badge bg-success">&#10003; Present</span>
+                            {% else %}
+                            <span class="badge bg-danger">&#10007; Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div><!-- end .container -->
+{% endblock %}

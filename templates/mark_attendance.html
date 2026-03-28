@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="container py-4 z-1" style="position:relative;">
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+        <h1><i class="bi bi-check2-square me-2 text-primary"></i>Mark Attendance</h1>
+        <p class="lead">Select a date and mark each student as Present or Absent.</p>
+    </div>
+
+    <!-- Date Selector Card -->
+    <div class="card mb-4 fade-in fade-in-1">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('mark_attendance') }}" class="row g-3 align-items-end"
+                id="date-select-form">
+                <div class="col-md-4">
+                    <label for="date" class="form-label">Select Date</label>
+                    <!-- The date input defaults to today -->
+                    <input type="date" class="form-control" id="date" name="date" value="{{ selected_date }}"
+                        max="{{ today }}" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100" id="load-date-btn">
+                        <i class="bi bi-search me-1"></i>Load
+                    </button>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="text-muted" style="font-size:0.88rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Showing attendance for <strong style="color:#a5b4fc;">{{ selected_date }}</strong>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance Form -->
+    {% if students %}
+    <form method="POST" action="{{ url_for('mark_attendance') }}" id="attendance-form">
+        <!-- Hidden field — carries the selected date to the POST route -->
+        <input type="hidden" name="date" value="{{ selected_date }}" />
+
+        <div class="card fade-in fade-in-2">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span>
+                    <i class="bi bi-people me-2 text-primary"></i>
+                    Students — <span class="text-muted">{{ students|length }} total</span>
+                </span>
+                <!-- Mark All buttons for convenience -->
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success btn-sm" id="mark-all-present"
+                        onclick="markAll('Present')">
+                        <i class="bi bi-check-all me-1"></i>All Present
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" id="mark-all-absent"
+                        onclick="markAll('Absent')">
+                        <i class="bi bi-x-lg me-1"></i>All Absent
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% for student in students %}
+                <div class="attendance-row">
+                    <!-- Student Info -->
+                    <div class="student-info">
+                        <!-- Avatar: first letter of name -->
+                        <div class="avatar">{{ student['name'][0] | upper }}</div>
+                        <div>
+                            <div class="fw-600 text-white" style="font-size:0.95rem;">{{ student['name'] }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">
+                                Roll: {{ student['roll_no'] }} &nbsp;|&nbsp;
+                                {% if student['class_name'] %}{{ student['class_name'] }}{% else %}N/A{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Present / Absent toggle buttons (styled radio) -->
+                    <div class="attendance-toggle" id="toggle-{{ student['id'] }}">
+                        <input type="radio" class="btn-check" name="status_{{ student['id'] }}"
+                            id="present_{{ student['id'] }}" value="Present" {% if
+                            existing.get(student['id'])=='Present' %}checked{% endif %} />
+                        <label class="btn btn-success btn-sm" for="present_{{ student['id'] }}">
+                            <i class="bi bi-check-lg me-1"></i>Present
+                        </label>
+
+                        <input type="radio" class="btn-check" name="status_{{ student['id'] }}"
+                            id="absent_{{ student['id'] }}" value="Absent" {% if existing.get(student['id'])=='Absent'
+                            %}checked{% endif %} />
+                        <label class="btn btn-danger btn-sm" for="absent_{{ student['id'] }}">
+                            <i class="bi bi-x-lg me-1"></i>Absent
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="card-body" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:1rem;">
+                <button type="submit" class="btn btn-primary btn-lg px-5" id="save-attendance-btn">
+                    <i class="bi bi-save me-2"></i>Save Attendance
+                </button>
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-light btn-lg ms-2">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {% else %}
+    <!-- No students registered yet -->
+    <div class="card fade-in">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-people" style="font-size:3rem;color:#4f46e5;opacity:0.5;"></i>
+            <h5 class="text-white mt-3">No students registered yet.</h5>
+            <p class="text-muted">Add students first so you can mark their attendance.</p>
+            <a href="{{ url_for('manage_students') }}" class="btn btn-primary mt-2" id="add-students-btn">
+                <i class="bi bi-person-plus me-2"></i>Add Students
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /**
+     * markAll(status) — Sets ALL student radio buttons to the given status.
+     * Called when the teacher clicks "All Present" or "All Absent".
+     *
+     * @param {string} status  - Either 'Present' or 'Absent'
+     */
+    function markAll(status) {
+        // Select every radio button whose value matches the requested status
+        document.querySelectorAll(`input[type="radio"][value="${status}"]`).forEach(function (radio) {
+            radio.checked = true;
+        });
+    }
+</script>
+{% endblock %}

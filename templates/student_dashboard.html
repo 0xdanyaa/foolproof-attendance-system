@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}My Attendance — {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4 z-1" style="position:relative;">
+
+    <!-- ===== WELCOME BANNER ===== -->
+    <div class="welcome-banner fade-in">
+        <div class="welcome-text">
+            <h2>👋 Hello, {{ student.name }}!</h2>
+            <p>
+                Roll No: <strong style="color:#a5b4fc;">{{ student.roll_no }}</strong>
+                {% if student.class_name %}
+                &nbsp;|&nbsp; Class: <strong style="color:#a5b4fc;">{{ student.class_name }}</strong>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== STAT CARDS ===== -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-6 col-md-3 fade-in fade-in-1">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar3"></i></div>
+                <div class="stat-value">{{ total_classes }}</div>
+                <div class="stat-label">Total Classes</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3 fade-in fade-in-2">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-person-check-fill"></i></div>
+                <div class="stat-value">{{ present_count }}</div>
+                <div class="stat-label">Classes Present</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3 fade-in fade-in-3">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="bi bi-person-x-fill"></i></div>
+                <div class="stat-value">{{ absent_count }}</div>
+                <div class="stat-label">Classes Absent</div>
+            </div>
+        </div>
+
+        <!-- Attendance % — colour changes based on value -->
+        <div class="col-6 col-md-3 fade-in fade-in-4">
+            <div class="stat-card">
+                {% if attendance_pct >= 75 %}
+                <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+                <div class="stat-value" style="color:#10b981;">{{ attendance_pct }}%</div>
+                {% elif attendance_pct >= 60 %}
+                <div class="stat-icon orange"><i class="bi bi-graph-up"></i></div>
+                <div class="stat-value" style="color:#f59e0b;">{{ attendance_pct }}%</div>
+                {% else %}
+                <div class="stat-icon red"><i class="bi bi-graph-down-arrow"></i></div>
+                <div class="stat-value" style="color:#ef4444;">{{ attendance_pct }}%</div>
+                {% endif %}
+                <div class="stat-label">Attendance %</div>
+            </div>
+        </div>
+
+    </div><!-- end stat row -->
+
+    <!-- ===== ATTENDANCE PROGRESS BAR ===== -->
+    <div class="card mb-4 fade-in fade-in-2">
+        <div class="card-body">
+
+            <!-- Label + percentage value -->
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-600 text-white">Overall Attendance</span>
+                {% if attendance_pct >= 75 %}
+                <span class="fw-700 text-success" style="font-size:1.1rem;">{{ attendance_pct }}%</span>
+                {% elif attendance_pct >= 60 %}
+                <span class="fw-700 text-warning" style="font-size:1.1rem;">{{ attendance_pct }}%</span>
+                {% else %}
+                <span class="fw-700 text-danger" style="font-size:1.1rem;">{{ attendance_pct }}%</span>
+                {% endif %}
+            </div>
+
+            <!-- Colour-coded progress bar -->
+            <div class="progress" style="height:12px;">
+                {% if attendance_pct >= 75 %}
+                <div class="progress-bar bg-success" role="progressbar" style="width:{{ attendance_pct }}%"
+                    aria-valuenow="{{ attendance_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                {% elif attendance_pct >= 60 %}
+                <div class="progress-bar bg-warning" role="progressbar" style="width:{{ attendance_pct }}%"
+                    aria-valuenow="{{ attendance_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                {% else %}
+                <div class="progress-bar bg-danger" role="progressbar" style="width:{{ attendance_pct }}%"
+                    aria-valuenow="{{ attendance_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                {% endif %}
+            </div>
+
+            <!-- Warning shown only when attendance is below 75% -->
+            {% if attendance_pct < 75 %} <div class="alert alert-warning mt-3 mb-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Warning:</strong> Your attendance is below the required
+                <strong>75%</strong> threshold.
+                You need to attend
+                <strong>{{ classes_needed }}</strong> more class(es) to reach 75%.
+        </div>
+        {% endif %}
+
+    </div><!-- end card-body -->
+</div><!-- end progress card -->
+
+<!-- ===== ATTENDANCE HISTORY TABLE ===== -->
+<div class="card fade-in fade-in-3">
+    <div class="card-header">
+        <i class="bi bi-clock-history me-2 text-primary"></i>My Attendance History
+    </div>
+
+    {% if records %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Marked By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in records %}
+                <tr>
+                    <td class="text-muted">{{ loop.index }}</td>
+                    <td>{{ rec['date'] }}</td>
+                    <td>
+                        {% if rec['status'] == 'Present' %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-lg me-1"></i>Present
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-x-lg me-1"></i>Absent
+                        </span>
+                        {% endif %}
+                    </td>
+                    <!-- Teacher who marked this attendance record -->
+                    <td class="text-muted" style="font-size:0.85rem;">
+                        {% if rec['teacher_name'] %}
+                        {{ rec['teacher_name'] }}
+                        {% else %}
+                        System
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="card-body text-center py-5">
+        <i class="bi bi-calendar-x" style="font-size:2.5rem;opacity:0.3;"></i>
+        <p class="text-muted mt-2 mb-0">No attendance records found yet.</p>
+    </div>
+    {% endif %}
+
+</div><!-- end history card -->
+
+</div><!-- end .container -->
+{% endblock %}
+<!--http://127.0.0.1:5000-->
+<!--still there are soe error in the html files so correct it with claude and push the whole 
+project in github after learning it-->

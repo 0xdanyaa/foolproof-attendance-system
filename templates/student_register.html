@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Student Registration{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card fade-in" style="max-width:460px;">
+
+        <div class="login-logo">🎓</div>
+        <h1 class="login-title">Student Registration</h1>
+        <p class="login-subtitle">Create your student account</p>
+
+        <form method="POST" action="{{ url_for('student_register') }}" id="student-register-form">
+
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required />
+            </div>
+
+            <!-- Roll Number -->
+            <div class="mb-3">
+                <label for="roll_no" class="form-label">Roll Number</label>
+                <input type="text" class="form-control" id="roll_no" name="roll_no" placeholder="e.g. CSE-2024-001"
+                    required />
+            </div>
+
+            <!-- Class / Batch -->
+            <div class="mb-3">
+                <label for="class_name" class="form-label">Class / Batch</label>
+                <input type="text" class="form-control" id="class_name" name="class_name"
+                    placeholder="e.g. Computer Science — Year 2" />
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="e.g. john@example.com" />
+            </div>
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username"
+                    placeholder="Choose a unique username" required autocomplete="username" />
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password"
+                    placeholder="Choose a strong password" required autocomplete="new-password" />
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-4">
+                <label for="confirm" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm" name="confirm"
+                    placeholder="Repeat your password" required />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-lg" id="student-register-submit">
+                <i class="bi bi-person-plus me-2"></i>Create Account
+            </button>
+        </form>
+
+        <hr class="section-divider" />
+        <p class="text-center text-muted mb-0" style="font-size:0.88rem;">
+            Already have an account? <a href="{{ url_for('student_login') }}" class="text-primary">Login here</a>
+        </p>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('student-register-form').addEventListener('submit', function (e) {
+        const pw = document.getElementById('password').value;
+        const cfm = document.getElementById('confirm').value;
+        if (pw !== cfm) {
+            e.preventDefault();
+            alert('Passwords do not match. Please try again.');
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
